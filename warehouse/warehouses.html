@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="warehouses-header">Warehouses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="mb-1">Warehouses</h1>
+      <div class="text-muted">Manage warehouse locations.</div>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#whModal">Add Warehouse</button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <input id="whSearch" class="form-control" placeholder="Search warehouses...">
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:90px;">ID</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Notes</th>
+          <th style="width:120px;">Active</th>
+          <th style="width:140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="whTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <a href="index.html" class="btn btn-secondary">Back to Warehouse</a>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal fade" id="whModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="whModalTitle">Add Warehouse</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="whId">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input id="whName" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input id="whAddress" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea id="whNotes" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="whActive" checked>
+            <label class="form-check-label" for="whActive">Active</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" id="whSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const key = 'mdt_warehouses_v1';
+      const search = document.getElementById('whSearch');
+      const tbody = document.getElementById('whTbody');
+
+      function load() { return JSON.parse(localStorage.getItem(key) || '[]'); }
+      function save(list) { localStorage.setItem(key, JSON.stringify(list)); }
+
+      function nextId(list) {
+        return (list.reduce((m,x)=>Math.max(m, Number(x.warehouse_id||0)), 0) || 0) + 1;
+      }
+
+      function render() {
+        const q = (search.value || '').toLowerCase();
+        const list = load().filter(w => !q || (w.name||'').toLowerCase().includes(q) || (w.address||'').toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        list.forEach(w => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${w.warehouse_id}</td>
+            <td>${escapeHtml(w.name||'')}</td>
+            <td>${escapeHtml(w.address||'')}</td>
+            <td>${escapeHtml(w.notes||'')}</td>
+            <td>${w.active ? 'Yes' : 'No'}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" data-act="edit" data-id="${w.warehouse_id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="del" data-id="${w.warehouse_id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      }
+
+      const modalEl = document.getElementById('whModal');
+      const modal = new bootstrap.Modal(modalEl);
+      const titleEl = document.getElementById('whModalTitle');
+
+      function openAdd() {
+        titleEl.textContent = 'Add Warehouse';
+        document.getElementById('whId').value = '';
+        document.getElementById('whName').value = '';
+        document.getElementById('whAddress').value = '';
+        document.getElementById('whNotes').value = '';
+        document.getElementById('whActive').checked = true;
+        modal.show();
+      }
+
+      function openEdit(w) {
+        titleEl.textContent = 'Edit Warehouse';
+        document.getElementById('whId').value = w.warehouse_id;
+        document.getElementById('whName').value = w.name || '';
+        document.getElementById('whAddress').value = w.address || '';
+        document.getElementById('whNotes').value = w.notes || '';
+        document.getElementById('whActive').checked = !!w.active;
+        modal.show();
+      }
+
+      document.querySelector('[data-bs-target="#whModal"]').addEventListener('click', openAdd);
+
+      document.getElementById('whSaveBtn').addEventListener('click', () => {
+        const list = load();
+        const idRaw = document.getElementById('whId').value;
+        const name = document.getElementById('whName').value.trim();
+        if (!name) return;
+        const address = document.getElementById('whAddress').value.trim();
+        const notes = document.getElementById('whNotes').value.trim();
+        const active = document.getElementById('whActive').checked;
+
+        if (idRaw) {
+          const id = Number(idRaw);
+          const idx = list.findIndex(x => Number(x.warehouse_id) === id);
+          if (idx >= 0) list[idx] = { ...list[idx], warehouse_id: id, name, address, notes, active };
+        } else {
+          const id = nextId(list);
+          list.push({ warehouse_id: id, name, address, notes, active });
+        }
+        save(list);
+        modal.hide();
+        render();
+      });
+
+      tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const act = btn.getAttribute('data-act');
+        const id = Number(btn.getAttribute('data-id'));
+        const list = load();
+        const item = list.find(x => Number(x.warehouse_id) === id);
+        if (!item) return;
+
+        if (act === 'edit') openEdit(item);
+        if (act === 'del') {
+          if (!confirm('Delete this warehouse?')) return;
+          save(list.filter(x => Number(x.warehouse_id) !== id));
+          render();
+        }
+      });
+
+      search.addEventListener('input', render);
+      render();
+    });
+  </script>
+
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const key = 'warehouses';
+    function loadWarehouses() {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    }
+    function saveWarehouses(list) {
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+    function render() {
+      const list = loadWarehouses();
+      const tbody = document.getElementById('warehouseTableBody');
+      tbody.innerHTML = '';
+      list.forEach((w, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${idx + 1}</td><td>${w.name}</td><td>${w.location}</td><td>${w.capacity}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('saveWarehouseBtn').addEventListener('click', function() {
+      const name = document.getElementById('warehouseName').value.trim();
+      const location = document.getElementById('warehouseLocation').value.trim();
+      const capacity = document.getElementById('warehouseCapacity').value;
+      if (!name || !location || capacity === '') return;
+      const list = loadWarehouses();
+      list.push({name, location, capacity: parseInt(capacity, 10)});
+      saveWarehouses(list);
+      render();
+      document.getElementById('warehouseForm').reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('warehouseModal'));
+      modal.hide();
+    });
+    document.getElementById('warehouseModal').addEventListener('show.bs.modal', function() {
+      document.getElementById('warehouseForm').reset();
+    });
+    render();
+  });
+  </script>
+</body>
+</html>

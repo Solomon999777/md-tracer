@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Locations | Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="mb-1">Locations</h1>
+      <div class="text-muted">Bin/rack locations inside warehouses.</div>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#locModal">Add Location</button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <input id="locSearch" class="form-control" placeholder="Search locations...">
+    </div>
+    <div class="col-md-4">
+      <select id="locWhFilter" class="form-select"></select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:90px;">ID</th>
+          <th>Warehouse</th>
+          <th style="width:120px;">Code</th>
+          <th>Description</th>
+          <th style="width:140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="locTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <a href="index.html" class="btn btn-secondary">Back to Warehouse</a>
+  </div>
+
+  <div class="modal fade" id="locModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="locModalTitle">Add Location</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="locId">
+          <div class="mb-3">
+            <label class="form-label">Warehouse</label>
+            <select id="locWarehouse" class="form-select"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Code</label>
+            <input id="locCode" class="form-control" placeholder="e.g., A1">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <input id="locDesc" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" id="locSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const locKey = 'mdt_locations_v1';
+      const whKey = 'mdt_warehouses_v1';
+      const tbody = document.getElementById('locTbody');
+      const search = document.getElementById('locSearch');
+      const whFilter = document.getElementById('locWhFilter');
+      const whSelect = document.getElementById('locWarehouse');
+
+      const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+      function load(k) { return JSON.parse(localStorage.getItem(k) || '[]'); }
+      function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+      function nextId(list) { return (list.reduce((m,x)=>Math.max(m, Number(x.location_id||0)), 0) || 0) + 1; }
+
+      function whName(id) {
+        const w = load(whKey).find(x => Number(x.warehouse_id) === Number(id));
+        return w ? w.name : '—';
+      }
+
+      function renderWhSelects() {
+        const warehouses = load(whKey);
+        const opts = ['<option value="">All Warehouses</option>'].concat(
+          warehouses.map(w => `<option value="${w.warehouse_id}">${escapeHtml(w.name)}</option>`)
+        ).join('');
+        whFilter.innerHTML = opts;
+
+        whSelect.innerHTML = warehouses.map(w => `<option value="${w.warehouse_id}">${escapeHtml(w.name)}</option>`).join('');
+      }
+
+      function render() {
+        const q = (search.value || '').toLowerCase();
+        const whId = whFilter.value;
+        const list = load(locKey).filter(l => {
+          if (whId && String(l.warehouse_id) !== String(whId)) return false;
+          if (!q) return true;
+          return (l.code||'').toLowerCase().includes(q) || (l.description||'').toLowerCase().includes(q) || whName(l.warehouse_id).toLowerCase().includes(q);
+        });
+        tbody.innerHTML = '';
+        list.forEach(l => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${l.location_id}</td>
+            <td>${escapeHtml(whName(l.warehouse_id))}</td>
+            <td>${escapeHtml(l.code||'')}</td>
+            <td>${escapeHtml(l.description||'')}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" data-act="edit" data-id="${l.location_id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="del" data-id="${l.location_id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('locModal'));
+      const titleEl = document.getElementById('locModalTitle');
+
+      function openAdd() {
+        titleEl.textContent = 'Add Location';
+        document.getElementById('locId').value = '';
+        document.getElementById('locCode').value = '';
+        document.getElementById('locDesc').value = '';
+        modal.show();
+      }
+
+      function openEdit(l) {
+        titleEl.textContent = 'Edit Location';
+        document.getElementById('locId').value = l.location_id;
+        document.getElementById('locWarehouse').value = l.warehouse_id;
+        document.getElementById('locCode').value = l.code || '';
+        document.getElementById('locDesc').value = l.description || '';
+        modal.show();
+      }
+
+      document.querySelector('[data-bs-target="#locModal"]').addEventListener('click', openAdd);
+
+      document.getElementById('locSaveBtn').addEventListener('click', () => {
+        const list = load(locKey);
+        const idRaw = document.getElementById('locId').value;
+        const warehouse_id = Number(document.getElementById('locWarehouse').value);
+        const code = document.getElementById('locCode').value.trim();
+        if (!warehouse_id || !code) return;
+        const description = document.getElementById('locDesc').value.trim();
+
+        if (idRaw) {
+          const id = Number(idRaw);
+          const idx = list.findIndex(x => Number(x.location_id) === id);
+          if (idx >= 0) list[idx] = { ...list[idx], location_id: id, warehouse_id, code, description };
+        } else {
+          const id = nextId(list);
+          list.push({ location_id: id, warehouse_id, code, description });
+        }
+        save(locKey, list);
+        modal.hide();
+        render();
+      });
+
+      tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const act = btn.getAttribute('data-act');
+        const id = Number(btn.getAttribute('data-id'));
+        const list = load(locKey);
+        const item = list.find(x => Number(x.location_id) === id);
+        if (!item) return;
+
+        if (act === 'edit') openEdit(item);
+        if (act === 'del') {
+          if (!confirm('Delete this location?')) return;
+          save(locKey, list.filter(x => Number(x.location_id) !== id));
+          render();
+        }
+      });
+
+      search.addEventListener('input', render);
+      whFilter.addEventListener('change', render);
+
+      renderWhSelects();
+      render();
+    });
+  </script>
+
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

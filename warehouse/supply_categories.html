@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supply Categories | Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="mb-1">Supply Categories</h1>
+      <div class="text-muted">Used by the supply catalog and inventory.</div>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#catModal">Add Category</button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <input id="catSearch" class="form-control" placeholder="Search categories...">
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:90px;">ID</th>
+          <th>Name</th>
+          <th style="width:120px;">Active</th>
+          <th style="width:140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="catTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <a href="index.html" class="btn btn-secondary">Back to Warehouse</a>
+  </div>
+
+  <div class="modal fade" id="catModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="catModalTitle">Add Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="catId">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input id="catName" class="form-control">
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="catActive" checked>
+            <label class="form-check-label" for="catActive">Active</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" id="catSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const key = 'mdt_supply_categories_v1';
+      const tbody = document.getElementById('catTbody');
+      const search = document.getElementById('catSearch');
+
+      const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      function load() { return JSON.parse(localStorage.getItem(key) || '[]'); }
+      function save(v) { localStorage.setItem(key, JSON.stringify(v)); }
+      function nextId(list) { return (list.reduce((m,x)=>Math.max(m, Number(x.category_id||0)), 0) || 0) + 1; }
+
+      function render() {
+        const q = (search.value || '').toLowerCase();
+        const list = load().filter(c => !q || (c.name||'').toLowerCase().includes(q));
+        tbody.innerHTML = '';
+        list.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.category_id}</td>
+            <td>${escapeHtml(c.name||'')}</td>
+            <td>${c.active ? 'Yes' : 'No'}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" data-act="edit" data-id="${c.category_id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="del" data-id="${c.category_id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('catModal'));
+      const titleEl = document.getElementById('catModalTitle');
+
+      function openAdd() {
+        titleEl.textContent = 'Add Category';
+        document.getElementById('catId').value = '';
+        document.getElementById('catName').value = '';
+        document.getElementById('catActive').checked = true;
+        modal.show();
+      }
+      function openEdit(c) {
+        titleEl.textContent = 'Edit Category';
+        document.getElementById('catId').value = c.category_id;
+        document.getElementById('catName').value = c.name || '';
+        document.getElementById('catActive').checked = !!c.active;
+        modal.show();
+      }
+
+      document.querySelector('[data-bs-target="#catModal"]').addEventListener('click', openAdd);
+
+      document.getElementById('catSaveBtn').addEventListener('click', () => {
+        const list = load();
+        const idRaw = document.getElementById('catId').value;
+        const name = document.getElementById('catName').value.trim();
+        if (!name) return;
+        const active = document.getElementById('catActive').checked;
+
+        if (idRaw) {
+          const id = Number(idRaw);
+          const idx = list.findIndex(x => Number(x.category_id) === id);
+          if (idx >= 0) list[idx] = { ...list[idx], category_id:id, name, active };
+        } else {
+          const id = nextId(list);
+          list.push({ category_id:id, name, active });
+        }
+        save(list);
+        modal.hide();
+        render();
+      });
+
+      tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const act = btn.getAttribute('data-act');
+        const id = Number(btn.getAttribute('data-id'));
+        const list = load();
+        const item = list.find(x => Number(x.category_id) === id);
+        if (!item) return;
+
+        if (act === 'edit') openEdit(item);
+        if (act === 'del') {
+          if (!confirm('Delete this category? (Catalog items may still reference it.)')) return;
+          save(list.filter(x => Number(x.category_id) !== id));
+          render();
+        }
+      });
+
+      search.addEventListener('input', render);
+      render();
+    });
+  </script>
+
+
+<script>
+  document.getElementById('addCategoryBtn').addEventListener('click', function () {
+    const name = document.getElementById('categoryName').value;
+    const desc = document.getElementById('categoryDescription').value;
+    if (!name) {
+      alert('Category name is required.');
+      return;
+    }
+    const tbody = document.getElementById('categoriesBody');
+    const tr = document.createElement('tr');
+    const id = tbody.children.length + 1;
+    tr.innerHTML = `
+      <td>${id}</td>
+      <td>${name}</td>
+      <td>${desc}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-primary">Open</button>
+        <button class="btn btn-sm btn-outline-danger">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('addCategoryForm').reset();
+  });
+</script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

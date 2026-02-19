@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grain Spawn Series | Preparation | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+  <h1 class="mb-4">Grain Spawn Preparation Series</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="lead">List of grain spawn series</span>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newSeriesModal">+ Create Series</button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover shadow-sm responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>Recipe</h3>
+          <th>Count</th>
+          <th>Responsible</th>
+        </tr>
+      </thead>
+      <tbody id="grainSeriesBody">
+        <tr>
+          <td>1</td>
+          <td>2026-02-17</td>
+          <td>Grain Spawn Mix</td>
+          <td>15</td>
+          <td>Carol</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-4">
+    <a href="../preparation.html" class="btn btn-secondary">Back to Preparation</a>
+  </div>
+</div>
+
+<!-- New Series Modal -->
+<div class="modal fade" id="newSeriesModal" tabindex="-1" aria-labelledby="newSeriesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newSeriesModalLabel">Create Grain Spawn Series</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="newGrainSeriesForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="grainDate">Preparation date</label>
+              <input type="date" id="grainDate" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="grainRecipe">Recipe</label>
+              <select id="grainRecipe" class="form-select" required>
+                <option value="">Choose...</option>
+                <option>Grain Spawn Mix</option>
+                <option>Custom Recipe</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="grainSterilization">Sterilization time (min)</label>
+              <input type="number" id="grainSterilization" class="form-control" placeholder="90" required>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label class="form-label" for="grainCount">Number of preps</label>
+              <input type="number" id="grainCount" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="grainRoom">Room</label>
+              <select id="grainRoom" class="form-select">
+                <option value="">Select...</option>
+                <option>Lab 1</option>
+                <option>Lab 2</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="grainZone">Zone</label>
+              <select id="grainZone" class="form-select">
+                <option value="">Select...</option>
+                <option>Zone A</option>
+                <option>Zone B</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label class="form-label" for="grainStorage">Storage</label>
+              <select id="grainStorage" class="form-select">
+                <option value="">Select...</option>
+                <option>Cold Room</option>
+                <option>Shelf 3</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label" for="grainNotes">Notes</label>
+              <textarea id="grainNotes" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+        </form>
+        <div class="mt-3">
+          <h6>Ingredients</h6>
+          <p>Select a recipe to load required ingredients.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="createGrainSeriesBtn">Create series</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('createGrainSeriesBtn').addEventListener('click', function () {
+    const date = document.getElementById('grainDate').value;
+    const recipe = document.getElementById('grainRecipe').value;
+    const count = document.getElementById('grainCount').value;
+    if (!date || !recipe || !count) {
+      alert('Please fill in required fields.');
+      return;
+    }
+    const tbody = document.getElementById('grainSeriesBody');
+    const id = tbody.children.length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${id}</td>
+      <td>${date}</td>
+      <td>${recipe}</td>
+      <td>${count}</td>
+      <td>You</td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('newGrainSeriesForm').reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('newSeriesModal'));
+    modal.hide();
+  });
+</script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/common.js"></script>
+</body>
+</html>

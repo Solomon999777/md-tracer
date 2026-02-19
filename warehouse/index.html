@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .card-link { text-decoration: none; color: inherit; }
+    .card-link:hover { text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+  <h1 class="mb-4">Warehouse</h1>
+  <p class="lead">Choose an area to manage your inventory.</p>
+  <div class="row g-4">
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="supplies/index.html">
+        <div class="card-body">
+          <h6 class="card-title">Supplies</h6>
+          <p class="card-text">Manage purchases and lots of supplies. View expiring soon items.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="supply_categories.html">
+        <div class="card-body">
+          <h6 class="card-title">Supply Categories</h6>
+          <p class="card-text">Create and organize supply categories and sub‑categories.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="supply_catalog.html">
+        <div class="card-body">
+          <h6 class="card-title">Supply Catalog</h6>
+          <p class="card-text">Search and manage supply items and track stock levels.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="spores.html">
+        <div class="card-body">
+          <h6 class="card-title">Spores</h6>
+          <p class="card-text">Manage your spore inventory.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="strains.html">
+        <div class="card-body">
+          <h6 class="card-title">Strains</h6>
+          <p class="card-text">Define and manage biological strains.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="locations.html">
+        <div class="card-body">
+          <h6 class="card-title">Locations</h6>
+          <p class="card-text">Set up rooms, zones and storage areas for inventory.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="warehouses.html">
+        <div class="card-body">
+          <h6 class="card-title" data-i18n-key="warehouses-card-title">Warehouses</h6>
+          <p class="card-text" data-i18n-key="warehouses-card-desc">Manage warehouse locations and capacities.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="stock_api.html">
+        <div class="card-body">
+          <h6 class="card-title">Stock API</h6>
+          <p class="card-text">Access your inventory via API for integration.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="mt-4">
+    <a href="../index.html" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

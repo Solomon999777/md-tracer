@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOPs | Documents | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .sop-item { cursor: pointer; }
+    .sop-item:hover { background: rgba(0,0,0,0.03); }
+    textarea { min-height: 260px; }
+  </style>
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-4">
+  <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="mb-0" data-i18n-key="sops-title">SOPs</h1>
+      <div class="text-muted" data-i18n-key="sops-subtitle">Create and manage standard operating procedures for each stage.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-secondary" href="index.html" data-i18n-key="back-to-documents">Back to Documents</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex gap-2">
+            <input id="search" class="form-control" placeholder="Search SOPs…">
+            <button id="newBtn" class="btn btn-primary" data-i18n-key="new-sop">New</button>
+          </div>
+        </div>
+        <div class="list-group list-group-flush" id="list"></div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-8">
+              <label class="form-label" data-i18n-key="sop-title">Title</label>
+              <input id="title" class="form-control" placeholder="e.g., Grain Prep – Sterilization">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" data-i18n-key="sop-stage">Stage</label>
+              <select id="stage" class="form-select">
+                <option value="Preparation">Preparation</option>
+                <option value="Inoculation">Inoculation</option>
+                <option value="Incubation">Incubation</option>
+                <option value="Fruiting">Fruiting</option>
+                <option value="Harvest">Harvest</option>
+                <option value="Cleaning">Cleaning</option>
+                <option value="QA">QA</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" data-i18n-key="sop-body">Procedure</label>
+              <textarea id="body" class="form-control" placeholder="Write step-by-step instructions…"></textarea>
+            </div>
+            <div class="col-12 d-flex gap-2 justify-content-end">
+              <button id="deleteBtn" class="btn btn-outline-danger" disabled data-i18n-key="delete">Delete</button>
+              <button id="saveBtn" class="btn btn-success" data-i18n-key="save">Save</button>
+            </div>
+          </div>
+          <div class="small text-muted mt-3" id="meta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+<script src="../js/sops.js"></script>
+</body>
+</html>

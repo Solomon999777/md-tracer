@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Petri Inoculations | Inoculation | Production | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+  <h1 class="mb-4">Petri Dish Inoculations</h1>
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <form class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="filterBarcode" class="form-label">Barcode</label>
+          <input type="text" id="filterBarcode" class="form-control" placeholder="Search barcode">
+        </div>
+        <div class="col-md-3">
+          <label for="filterDateFrom" class="form-label">From</label>
+          <input type="date" id="filterDateFrom" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label for="filterDateTo" class="form-label">To</label>
+          <input type="date" id="filterDateTo" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="filterUnused">
+            <label class="form-check-label" for="filterUnused">Only unused</label>
+          </div>
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-primary">Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Create button -->
+  <div class="mb-3 text-end">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newInoculationModal">+ Create Inoculation</button>
+  </div>
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover shadow-sm responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th>Barcode</th>
+          <th>Date</th>
+          <th>Strain</th>
+          <th>Generation</th>
+          <th>Prep</th>
+          <th>Series</th>
+          <th>Source</th>
+          <th>Responsible</th>
+          <th>Location</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="petriInoculationsBody">
+        <tr>
+          <td>PETRI-001</td>
+          <td>2026-02-20</td>
+          <td>Golden Oyster</td>
+          <td>F1</td>
+          <td>Prep #10</td>
+          <td>Series 1</td>
+          <td>Spores</td>
+          <td>Alice</td>
+          <td>Lab 1</td>
+          <td><span class="badge bg-warning text-dark">Unused</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-4">
+    <a href="../inoculation.html" class="btn btn-secondary">Back to Inoculation</a>
+  </div>
+</div>
+
+<!-- New Inoculation Modal -->
+<div class="modal fade" id="newInoculationModal" tabindex="-1" aria-labelledby="newInoculationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newInoculationModalLabel">Create Petri Inoculation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="newPetriInoculationForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="petriInocDate" class="form-label">Inoculation date</label>
+              <input type="date" id="petriInocDate" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label for="petriRoom" class="form-label">Room</label>
+              <select id="petriRoom" class="form-select">
+                <option value="">Select...</option>
+                <option>Lab 1</option>
+                <option>Lab 2</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="petriZone" class="form-label">Zone</label>
+              <select id="petriZone" class="form-select">
+                <option value="">Select...</option>
+                <option>Zone A</option>
+                <option>Zone B</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="petriStorage" class="form-label">Storage</label>
+              <select id="petriStorage" class="form-select">
+                <option value="">Select...</option>
+                <option>Incubator 1</option>
+                <option>Shelf 2</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label for="petriNotes" class="form-label">Notes</label>
+              <textarea id="petriNotes" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+          <hr>
+          <h6>Source</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="petriSourceType" class="form-label">Source type</label>
+              <select id="petriSourceType" class="form-select" required>
+                <option value="">Choose...</option>
+                <option>Spores</option>
+                <option>Petri</option>
+                <option>Liquid</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="petriSourceId" class="form-label">Source ID</label>
+              <input type="text" id="petriSourceId" class="form-control" placeholder="Enter ID">
+            </div>
+          </div>
+          <hr>
+          <h6>Preps</h6>
+          <p>Scan or select preps to inoculate.</p>
+          <div class="table-responsive">
+            <table class="table table-sm responsive-table">
+              <thead>
+                <tr><th>Prep</th><th>Count</th></tr>
+              </thead>
+              <tbody id="petriPrepsTable">
+                <!-- Preps will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="createPetriInocBtn">Create Inoculation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('createPetriInocBtn').addEventListener('click', function () {
+    const date = document.getElementById('petriInocDate').value;
+    const source = document.getElementById('petriSourceType').value;
+    if (!date || !source) {
+      alert('Please fill required fields (date and source type).');
+      return;
+    }
+    const tbody = document.getElementById('petriInoculationsBody');
+    const tr = document.createElement('tr');
+    const id = tbody.children.length + 1;
+    tr.innerHTML = `
+      <td>PETRI-${String(id).padStart(3, '0')}</td>
+      <td>${date}</td>
+      <td>New Strain</td>
+      <td>F1</td>
+      <td>Prep #${id}</td>
+      <td>Series ${id}</td>
+      <td>${source}</td>
+      <td>You</td>
+      <td>-</td>
+      <td><span class="badge bg-warning text-dark">Unused</span></td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('newPetriInoculationForm').reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('newInoculationModal'));
+    modal.hide();
+  });
+</script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/common.js"></script>
+</body>
+</html>

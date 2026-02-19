@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supply Inventory | Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-4">
+  <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="mb-0">Supply Inventory</h1>
+      <div class="text-muted" id="count"></div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-secondary" href="index.html">Back to Supplies</a>
+      <a class="btn btn-outline-secondary" href="../index.html">Back to Warehouse</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+          <label class="form-label">Search</label>
+          <input id="q" class="form-control" placeholder="Type a supply name…">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Category</label>
+          <select id="cat" class="form-select">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Stock</label>
+          <select id="show" class="form-select">
+            <option value="all">All</option>
+            <option value="in">In Stock</option>
+            <option value="out">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive shadow-sm border rounded">
+    <table class="table table-hover mb-0 responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 72px;">ID</th>
+          <th>Name</th>
+          <th style="width: 110px;">Status</th>
+          <th class="text-end" style="width: 140px;">On Hand</th>
+          <th class="text-end" style="width: 120px;">Purchased</th>
+          <th class="text-end" style="width: 120px;">Used</th>
+          <th class="text-end" style="width: 130px;">Written Off</th>
+          <th class="text-end" style="width: 110px;"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="d_name">Supply</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row mb-0">
+          <dt class="col-5">Item ID</dt><dd class="col-7" id="d_id"></dd>
+          <dt class="col-5">Category ID</dt><dd class="col-7" id="d_cat"></dd>
+          <dt class="col-5">Unit</dt><dd class="col-7" id="d_unit"></dd>
+          <dt class="col-5">On Hand</dt><dd class="col-7" id="d_onhand"></dd>
+          <dt class="col-5">Purchased</dt><dd class="col-7" id="d_purchased"></dd>
+          <dt class="col-5">Used</dt><dd class="col-7" id="d_used"></dd>
+          <dt class="col-5">Written Off</dt><dd class="col-7" id="d_written"></dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../js/seed.js"></script>
+  <script src="../../js/common.js"></script>
+<script src="../../js/supplies_seed.js"></script>
+<script src="../../js/supplies_inventory.js"></script>
+</body>
+</html>

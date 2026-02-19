@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supply Lots | Supplies | Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+  <h1 class="mb-4">Supply Lots</h1>
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <form class="row g-3">
+        <div class="col-md-4">
+          <label for="itemFilter" class="form-label">Item</label>
+          <select class="form-select" id="itemFilter">
+            <option value="">All items</option>
+            <option>Alcohol 100%</option>
+            <option>HEPA Filters</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="qaFilter" class="form-label">QA Status</label>
+          <select class="form-select" id="qaFilter">
+            <option value="">All</option>
+            <option>Pending</option>
+            <option>Approved</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="lotDateFrom" class="form-label">From</label>
+          <input type="date" id="lotDateFrom" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <label for="lotDateTo" class="form-label">To</label>
+          <input type="date" id="lotDateTo" class="form-control">
+        </div>
+        <div class="col-12 text-end">
+          <button type="button" class="btn btn-primary">Apply</button>
+          <button type="button" class="btn btn-outline-secondary">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- New lot button -->
+  <div class="mb-3 text-end">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newLotModal">+ New Lot</button>
+  </div>
+  <!-- Lots table -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover shadow-sm responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th>Lot #</th>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Purchase date</th>
+          <th>Expiration</th>
+          <th>QA Status</th>
+          <th>Vendor</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="lotsBody">
+        <tr>
+          <td>LOT-001</td>
+          <td>Alcohol 100%</td>
+          <td>10 L</td>
+          <td>2026-02-01</td>
+          <td>2027-01-31</td>
+          <td><span class="badge bg-warning text-dark">Pending</span></td>
+          <td>Acme Supplies</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary">Edit</button>
+            <button class="btn btn-sm btn-outline-danger">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-4">
+    <a href="index.html" class="btn btn-secondary">Back to Supplies</a>
+  </div>
+</div>
+
+<!-- New Lot Modal -->
+<div class="modal fade" id="newLotModal" tabindex="-1" aria-labelledby="newLotModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newLotModalLabel">New Lot</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="newLotForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="internalLotNumber" class="form-label">Internal Lot #</label>
+              <input type="text" class="form-control" id="internalLotNumber" required>
+            </div>
+            <div class="col-md-4">
+              <label for="vendorLotNumber" class="form-label">Vendor Lot #</label>
+              <input type="text" class="form-control" id="vendorLotNumber">
+            </div>
+            <div class="col-md-4">
+              <label for="lotItem" class="form-label">Item</label>
+              <select class="form-select" id="lotItem" required>
+                <option value="">Choose...</option>
+                <option>Alcohol 100%</option>
+                <option>HEPA Filters</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="lotPurchase" class="form-label">Purchase</label>
+              <select class="form-select" id="lotPurchase">
+                <option value="">Select purchase...</option>
+                <option>INV-001</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="lotQuantity" class="form-label">Quantity</label>
+              <input type="text" class="form-control" id="lotQuantity" placeholder="e.g. 10 kg" required>
+            </div>
+            <div class="col-md-4">
+              <label for="lotPackages" class="form-label">Packages</label>
+              <input type="number" class="form-control" id="lotPackages" placeholder="e.g. 5" required>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="lotPurchaseDate" class="form-label">Purchase date</label>
+              <input type="date" id="lotPurchaseDate" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label for="lotExpiration" class="form-label">Expiration date</label>
+              <input type="date" id="lotExpiration" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label for="lotVendor" class="form-label">Vendor</label>
+              <select class="form-select" id="lotVendor">
+                <option value="">Choose...</option>
+                <option>Acme Supplies</option>
+                <option>Biotech Co.</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="lotQAStatus" class="form-label">QA Status</label>
+              <select class="form-select" id="lotQAStatus">
+                <option value="">Select...</option>
+                <option>Pending</option>
+                <option>Approved</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label for="lotNotes" class="form-label">Notes</label>
+              <textarea id="lotNotes" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="createLotBtn">Create Lot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('createLotBtn').addEventListener('click', function () {
+    const internal = document.getElementById('internalLotNumber').value;
+    const item = document.getElementById('lotItem').value;
+    const qty = document.getElementById('lotQuantity').value;
+    const purchaseDate = document.getElementById('lotPurchaseDate').value;
+    const exp = document.getElementById('lotExpiration').value;
+    const status = document.getElementById('lotQAStatus').value || 'Pending';
+    const vendor = document.getElementById('lotVendor').value;
+    if (!internal || !item || !qty || !purchaseDate) {
+      alert('Please fill in required fields.');
+      return;
+    }
+    const tbody = document.getElementById('lotsBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${internal}</td>
+      <td>${item}</td>
+      <td>${qty}</td>
+      <td>${purchaseDate}</td>
+      <td>${exp}</td>
+      <td><span class="badge bg-secondary">${status}</span></td>
+      <td>${vendor}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-primary">Edit</button>
+        <button class="btn btn-sm btn-outline-danger">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('newLotForm').reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('newLotModal'));
+    modal.hide();
+  });
+</script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Substrate Inoculations | Inoculation | Production | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+  <h1 class="mb-4">Substrate Bag Inoculations</h1>
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <form class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label for="substrateFilterBarcode" class="form-label">Barcode</label>
+          <input type="text" id="substrateFilterBarcode" class="form-control" placeholder="Search barcode">
+        </div>
+        <div class="col-md-3">
+          <label for="substrateFilterDateFrom" class="form-label">From</label>
+          <input type="date" id="substrateFilterDateFrom" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label for="substrateFilterDateTo" class="form-label">To</label>
+          <input type="date" id="substrateFilterDateTo" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="substrateFilterUnused">
+            <label class="form-check-label" for="substrateFilterUnused">Only unused</label>
+          </div>
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-primary">Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Create button -->
+  <div class="mb-3 text-end">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newSubstrateInoculationModal">+ Create Inoculation</button>
+  </div>
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover shadow-sm responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th>Barcode</th>
+          <th>Date</th>
+          <th>Strain</th>
+          <th>Prep</th>
+          <th>Series</th>
+          <th>Source</th>
+          <th>Responsible</th>
+          <th>Location</th>
+          <th>Incubation finished</th>
+          <th>Fruiting</th>
+          <th>Harvests</th>
+        </tr>
+      </thead>
+      <tbody id="substrateInoculationsBody">
+        <tr>
+          <td>SUB-001</td>
+          <td>2026-02-23</td>
+          <td>Golden Oyster</td>
+          <td>Prep #8</td>
+          <td>Series 4</td>
+          <td>Grain</td>
+          <td>Dave</td>
+          <td>Incubator 1</td>
+          <td><span class="badge bg-secondary">No</span></td>
+          <td><span class="badge bg-secondary">Not started</span></td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-4">
+    <a href="../inoculation.html" class="btn btn-secondary">Back to Inoculation</a>
+  </div>
+</div>
+
+<!-- New Inoculation Modal -->
+<div class="modal fade" id="newSubstrateInoculationModal" tabindex="-1" aria-labelledby="newSubstrateInoculationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newSubstrateInoculationModalLabel">Create Substrate Bag Inoculation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="newSubstrateInoculationForm">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="substrateInocDate" class="form-label">Inoculation date</label>
+              <input type="date" id="substrateInocDate" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label for="substrateRoom" class="form-label">Room</label>
+              <select id="substrateRoom" class="form-select">
+                <option value="">Select...</option>
+                <option>Lab 1</option>
+                <option>Lab 2</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="substrateZone" class="form-label">Zone</label>
+              <select id="substrateZone" class="form-select">
+                <option value="">Select...</option>
+                <option>Zone A</option>
+                <option>Zone B</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <label for="substrateStorage" class="form-label">Storage</label>
+              <select id="substrateStorage" class="form-select">
+                <option value="">Select...</option>
+                <option>Incubator 1</option>
+                <option>Shelf 3</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label for="substrateNotes" class="form-label">Notes</label>
+              <textarea id="substrateNotes" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+          <hr>
+          <h6>Source</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="substrateSourceType" class="form-label">Source type</label>
+              <select id="substrateSourceType" class="form-select" required>
+                <option value="">Choose...</option>
+                <option>Grain</option>
+                <option>Petri</option>
+                <option>Liquid</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="substrateSourceId" class="form-label">Source ID</label>
+              <input type="text" id="substrateSourceId" class="form-control" placeholder="Enter ID">
+            </div>
+          </div>
+          <hr>
+          <h6>Preps</h6>
+          <p>Add preps to inoculate substrate bags.</p>
+          <div class="table-responsive">
+            <table class="table table-sm responsive-table">
+              <thead><tr><th>Prep</th><th>Count</th></tr></thead>
+              <tbody id="substratePrepsTable"></tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="createSubstrateInocBtn">Create Inoculation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('createSubstrateInocBtn').addEventListener('click', function () {
+    const date = document.getElementById('substrateInocDate').value;
+    const source = document.getElementById('substrateSourceType').value;
+    if (!date || !source) {
+      alert('Please fill required fields (date and source type).');
+      return;
+    }
+    const tbody = document.getElementById('substrateInoculationsBody');
+    const id = tbody.children.length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>SUB-${String(id).padStart(3, '0')}</td>
+      <td>${date}</td>
+      <td>New Strain</td>
+      <td>Prep #${id}</td>
+      <td>Series ${id}</td>
+      <td>${source}</td>
+      <td>You</td>
+      <td>-</td>
+      <td><span class="badge bg-secondary">No</span></td>
+      <td><span class="badge bg-secondary">Not started</span></td>
+      <td>0</td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('newSubstrateInoculationForm').reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('newSubstrateInoculationModal'));
+    modal.hide();
+  });
+</script>
+  <script src="../../js/seed.js"></script>
+  <script src="../../js/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="vendors-header">Vendors</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-4">
+    <h1 class="mb-4" data-i18n-key="vendors-header">Vendors</h1>
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#vendorModal" data-i18n-key="add-vendor">Add Vendor</button>
+    <table class="table table-bordered responsive-table">
+      <thead>
+        <tr>
+          <th data-i18n-key="vendor-name">Vendor Name</th>
+          <th data-i18n-key="vendor-contact">Contact</th>
+          <th data-i18n-key="vendor-organic-certified">Organic Certified</th>
+        </tr>
+      </thead>
+      <tbody id="vendorsTableBody"></tbody>
+    </table>
+  </div>
+  <!-- Vendor Modal -->
+  <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n-key="add-vendor">Add Vendor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="vendorName" class="form-label" data-i18n-key="vendor-name">Vendor Name</label>
+            <input type="text" class="form-control" id="vendorName">
+          </div>
+          <div class="mb-3">
+            <label for="vendorContact" class="form-label" data-i18n-key="vendor-contact">Contact</label>
+            <input type="text" class="form-control" id="vendorContact">
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="vendorOrganic">
+            <label class="form-check-label" for="vendorOrganic" data-i18n-key="vendor-organic-certified">Organic Certified</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="close">Close</button>
+          <button type="button" class="btn btn-primary" id="saveVendorBtn" data-i18n-key="save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const vendorsKey = 'vendors';
+    function loadVendors() {
+      return JSON.parse(localStorage.getItem(vendorsKey) || '[]');
+    }
+    function saveVendors(list) {
+      localStorage.setItem(vendorsKey, JSON.stringify(list));
+    }
+    function renderVendors() {
+      const tbody = document.getElementById('vendorsTableBody');
+      tbody.innerHTML = '';
+      const list = loadVendors();
+      list.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + v.name + '</td><td>' + v.contact + '</td><td>' + (v.organic ? 'Yes' : 'No') + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('saveVendorBtn').addEventListener('click', () => {
+      const name = document.getElementById('vendorName').value.trim();
+      const contact = document.getElementById('vendorContact').value.trim();
+      const organic = document.getElementById('vendorOrganic').checked;
+      if (!name) return;
+      const list = loadVendors();
+      list.push({name, contact, organic});
+      saveVendors(list);
+      renderVendors();
+      document.getElementById('vendorName').value = '';
+      document.getElementById('vendorContact').value = '';
+      document.getElementById('vendorOrganic').checked = false;
+      var modal = bootstrap.Modal.getInstance(document.getElementById('vendorModal'));
+      modal.hide();
+    });
+    renderVendors();
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="integrations-title">Integrations</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .card-link { text-decoration: none; color: inherit; }
+    .card-link:hover { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-5">
+    <h1 class="mb-4" data-i18n-key="integrations-title">Integrations</h1>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="qb-section-title">QuickBooks Integration</h5>
+            <p><span data-i18n-key="qb-connect-status-label">Connection Status</span>: <span id="qbStatus" data-i18n-key="qb-disconnected">Disconnected</span></p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#qbModal" data-i18n-key="qb-connect-button">Connect to QuickBooks</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="mapping-section-title">Mapping Options</h5>
+            <form id="mappingForm">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mapCustomers">
+                <label class="form-check-label" for="mapCustomers" data-i18n-key="mapping-customers">Customers</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mapVendors">
+                <label class="form-check-label" for="mapVendors" data-i18n-key="mapping-vendors">Vendors</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mapItems">
+                <label class="form-check-label" for="mapItems" data-i18n-key="mapping-items">Items</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mapSalesOrders">
+                <label class="form-check-label" for="mapSalesOrders" data-i18n-key="mapping-sales-orders">Sales Orders</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mapPurchaseOrders">
+                <label class="form-check-label" for="mapPurchaseOrders" data-i18n-key="mapping-purchase-orders">Purchase Orders</label>
+              </div>
+              <button type="button" class="btn btn-primary mt-3" id="saveMappingBtn" data-i18n-key="save">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col">
+        <button class="btn btn-success" id="runSyncBtn" data-i18n-key="qb-run-sync">Run Sync</button>
+      </div>
+    </div>
+  </div>
+  <!-- QuickBooks credentials modal -->
+  <div class="modal fade" id="qbModal" tabindex="-1" aria-labelledby="qbModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="qbModalLabel" data-i18n-key="qb-section-title">QuickBooks Integration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="qbForm">
+            <div class="mb-3">
+              <label for="qbClientId" class="form-label" data-i18n-key="qb-client-id">Client ID</label>
+              <input type="text" class="form-control" id="qbClientId">
+            </div>
+            <div class="mb-3">
+              <label for="qbClientSecret" class="form-label" data-i18n-key="qb-client-secret">Client Secret</label>
+              <input type="password" class="form-control" id="qbClientSecret">
+            </div>
+            <div class="mb-3">
+              <label for="qbEnv" class="form-label" data-i18n-key="qb-environment">Environment</label>
+              <select id="qbEnv" class="form-select">
+                <option value="sandbox">Sandbox</option>
+                <option value="production">Production</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="qb-cancel">Close</button>
+          <button type="button" class="btn btn-primary" id="saveCredentialsBtn" data-i18n-key="qb-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+    // Load stored credentials and update status
+    function loadCredentials() {
+      const creds = JSON.parse(localStorage.getItem('qbCreds') || '{}');
+      document.getElementById('qbClientId').value = creds.clientId || '';
+      document.getElementById('qbClientSecret').value = creds.clientSecret || '';
+      document.getElementById('qbEnv').value = creds.environment || 'sandbox';
+      updateStatus();
+    }
+    function saveCredentials() {
+      const creds = {
+        clientId: document.getElementById('qbClientId').value.trim(),
+        clientSecret: document.getElementById('qbClientSecret').value.trim(),
+        environment: document.getElementById('qbEnv').value
+      };
+      localStorage.setItem('qbCreds', JSON.stringify(creds));
+      updateStatus();
+    }
+    function updateStatus() {
+      const creds = JSON.parse(localStorage.getItem('qbCreds') || '{}');
+      const statusEl = document.getElementById('qbStatus');
+      if (creds.clientId && creds.clientSecret) {
+        statusEl.dataset.i18nKey = 'qb-connected';
+      } else {
+        statusEl.dataset.i18nKey = 'qb-disconnected';
+      }
+      applyTranslations();
+    }
+    function loadMapping() {
+      const mapping = JSON.parse(localStorage.getItem('qbMapping') || '{}');
+      document.getElementById('mapCustomers').checked = !!mapping.customers;
+      document.getElementById('mapVendors').checked = !!mapping.vendors;
+      document.getElementById('mapItems').checked = !!mapping.items;
+      document.getElementById('mapSalesOrders').checked = !!mapping.salesOrders;
+      document.getElementById('mapPurchaseOrders').checked = !!mapping.purchaseOrders;
+    }
+    function saveMapping() {
+      const mapping = {
+        customers: document.getElementById('mapCustomers').checked,
+        vendors: document.getElementById('mapVendors').checked,
+        items: document.getElementById('mapItems').checked,
+        salesOrders: document.getElementById('mapSalesOrders').checked,
+        purchaseOrders: document.getElementById('mapPurchaseOrders').checked
+      };
+      localStorage.setItem('qbMapping', JSON.stringify(mapping));
+      alert('Mapping saved');
+    }
+    function runSync() {
+      const creds = JSON.parse(localStorage.getItem('qbCreds') || '{}');
+      const mapping = JSON.parse(localStorage.getItem('qbMapping') || '{}');
+      if (!creds.clientId || !creds.clientSecret) {
+        alert('QuickBooks credentials not set');
+        return;
+      }
+      // Simulate sync process. In a real implementation, you would call a backend API.
+      alert('Syncing with QuickBooks...\nSelected mappings: ' + JSON.stringify(mapping));
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCredentials();
+      loadMapping();
+      // Event listeners
+      document.getElementById('saveCredentialsBtn').addEventListener('click', () => {
+        saveCredentials();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('qbModal'));
+        modal.hide();
+      });
+      document.getElementById('saveMappingBtn').addEventListener('click', saveMapping);
+      document.getElementById('runSyncBtn').addEventListener('click', runSync);
+    });
+  </script>
+</body>
+</html>

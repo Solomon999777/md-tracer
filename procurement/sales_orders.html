@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="sales-orders-header">Sales Orders</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-4">
+    <h1 class="mb-4" data-i18n-key="sales-orders-header">Sales Orders</h1>
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#soModal" data-i18n-key="add-sales-order">Add Sales Order</button>
+    <table class="table table-bordered responsive-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Organic</th>
+        </tr>
+      </thead>
+      <tbody id="salesTableBody"></tbody>
+    </table>
+  </div>
+  <!-- Sales Order Modal -->
+  <div class="modal fade" id="soModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n-key="add-sales-order">Add Sales Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="soCustomer" class="form-label">Customer Name</label>
+              <input type="text" class="form-control" id="soCustomer">
+            </div>
+            <div class="col-md-6">
+              <label for="soDate" class="form-label">Date</label>
+              <input type="date" class="form-control" id="soDate">
+            </div>
+          </div>
+          <hr>
+          <h6>Items</h6>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Item Name</label>
+              <input type="text" class="form-control" id="soItemName">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Quantity</label>
+              <input type="number" class="form-control" id="soItemQty" min="1" value="1">
+            </div>
+            <div class="col-md-3 form-check d-flex align-items-center">
+              <input class="form-check-input me-2" type="checkbox" id="soItemOrganic">
+              <label class="form-check-label" for="soItemOrganic">Organic</label>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-secondary" type="button" id="soAddItemBtn">Add Item</button>
+            </div>
+          </div>
+          <ul class="list-group mt-3" id="soItemList"></ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n-key="close">Close</button>
+          <button type="button" class="btn btn-primary" id="soSaveOrderBtn" data-i18n-key="save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ordersKey = 'salesOrders';
+    let items = [];
+    function loadOrders() {
+      return JSON.parse(localStorage.getItem(ordersKey) || '[]');
+    }
+    function saveOrders(list) {
+      localStorage.setItem(ordersKey, JSON.stringify(list));
+    }
+    function renderOrders() {
+      const tbody = document.getElementById('salesTableBody');
+      tbody.innerHTML = '';
+      const orders = loadOrders();
+      orders.forEach((order, idx) => {
+        const organicFlag = order.items.every(it => it.organic);
+        const itemsString = order.items.map(it => it.name + ' (' + it.qty + (it.organic ? ' O' : '') + ')').join(', ');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${idx + 1}</td><td>${order.customer}</td><td>${order.date}</td><td>${itemsString}</td><td>${organicFlag ? 'Yes' : 'Mixed'}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    // Add item to list
+    document.getElementById('soAddItemBtn').addEventListener('click', () => {
+      const name = document.getElementById('soItemName').value.trim();
+      const qty = parseInt(document.getElementById('soItemQty').value, 10);
+      const organic = document.getElementById('soItemOrganic').checked;
+      if (!name || qty <= 0) return;
+      items.push({name, qty, organic});
+      renderItems();
+      document.getElementById('soItemName').value = '';
+      document.getElementById('soItemQty').value = 1;
+      document.getElementById('soItemOrganic').checked = false;
+    });
+    function renderItems() {
+      const listEl = document.getElementById('soItemList');
+      listEl.innerHTML = '';
+      items.forEach((it, idx) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.textContent = `${it.name} – ${it.qty}${it.organic ? ' (Organic)' : ''}`;
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm btn-danger';
+        btn.textContent = '×';
+        btn.onclick = () => {
+          items.splice(idx, 1);
+          renderItems();
+        };
+        li.appendChild(btn);
+        listEl.appendChild(li);
+      });
+    }
+    document.getElementById('soSaveOrderBtn').addEventListener('click', () => {
+      const customer = document.getElementById('soCustomer').value.trim();
+      const date = document.getElementById('soDate').value;
+      if (!customer || !date || items.length === 0) return;
+      const orders = loadOrders();
+      orders.push({customer, date, items: items.slice()});
+      saveOrders(orders);
+      items = [];
+      renderOrders();
+      renderItems();
+      var modal = bootstrap.Modal.getInstance(document.getElementById('soModal'));
+      modal.hide();
+    });
+    document.getElementById('soModal').addEventListener('show.bs.modal', () => {
+      items = [];
+      renderItems();
+      document.getElementById('soDate').value = '';
+      document.getElementById('soCustomer').value = '';
+    });
+    renderOrders();
+  });
+  </script>
+</body>
+</html>

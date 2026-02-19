@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Environmental Analytics</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    canvas{width:100%;height:320px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+  </style>
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <div id="appHeader"></div>
+
+  <main class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0" data-i18n-key="env_analytics_title">Environmental Analytics</h1>
+      <a class="btn btn-outline-secondary" href="index.html" data-i18n-key="back">Back</a>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <label class="form-label" data-i18n-key="env_stage">Stage</label>
+            <select id="stageSel" class="form-select">
+              <option value="incubation">Incubation</option>
+              <option value="fruiting">Fruiting</option>
+            </select>
+
+            <label class="form-label mt-3" data-i18n-key="env_metric">Metric</label>
+            <select id="metricSel" class="form-select"></select>
+
+            <label class="form-label mt-3" data-i18n-key="env_days">Days</label>
+            <select id="daysSel" class="form-select">
+              <option value="7">7</option>
+              <option value="14" selected>14</option>
+              <option value="30">30</option>
+              <option value="90">90</option>
+            </select>
+
+            <div class="form-text mt-2" data-i18n-key="env_hint">Uses stage logs saved in this browser.</div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="env_alerts">Alerts</h5>
+            <div id="alerts" class="small text-muted">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <canvas id="chart"></canvas>
+            <div class="small text-muted mt-2" id="summary"></div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="env_recent">Recent points</h5>
+            <div class="table-responsive">
+              <table class="table table-sm responsive-table">
+                <thead><tr><th>Date</th><th>Batch</th><th>Value</th></tr></thead>
+                <tbody id="pointsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script type="module" src="../js/env_analytics.js"></script>
+</body>
+</html>

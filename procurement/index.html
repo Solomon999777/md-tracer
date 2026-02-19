@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="procurement-title">Procurement &amp; Sales</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .card-link { text-decoration: none; color: inherit; }
+    .card-link:hover { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-5">
+    <h1 class="mb-4" data-i18n-key="procurement-title">Procurement &amp; Sales</h1>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <a class="card card-link shadow-sm" href="vendors.html">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="vendors-card-title">Vendors</h5>
+            <p class="card-text" data-i18n-key="vendors-card-desc">Manage suppliers of mushrooms and products.</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a class="card card-link shadow-sm" href="purchase_orders.html">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="purchase-card-title">Purchase Orders</h5>
+            <p class="card-text" data-i18n-key="purchase-card-desc">Record and track purchases from suppliers.</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a class="card card-link shadow-sm" href="sales_orders.html">
+          <div class="card-body">
+            <h5 class="card-title" data-i18n-key="sales-card-title">Sales Orders</h5>
+            <p class="card-text" data-i18n-key="sales-card-desc">Record and manage sales to customers.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

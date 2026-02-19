@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Issues | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="mb-0" data-i18n-key="issues_title">Issues &amp; Contamination</h1>
+        <div class="text-muted">Track incidents, suspected causes, and corrective actions.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="index.html" class="btn btn-outline-secondary">Back</a>
+        <button class="btn btn-danger" id="newIssueBtn">+ New Issue</button>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <select id="batchFilter" class="form-select"></select>
+      </div>
+      <div class="col-md-4">
+        <select id="statusFilter" class="form-select">
+          <option value="">All statuses</option>
+          <option value="open">Open</option>
+          <option value="monitoring">Monitoring</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <input id="search" class="form-control" placeholder="Search">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle responsive-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Batch</th>
+            <th>Stage</th>
+            <th>Type</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Suspected source</th>
+            <th>Action</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="issuesBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal fade" id="issueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Issue</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-2">
+            <div class="col-md-3">
+              <label class="form-label">Date</label>
+              <input id="issDate" type="date" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Batch</label>
+              <select id="issBatch" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Stage</label>
+              <select id="issStage" class="form-select">
+                <option value="preparation">preparation</option>
+                <option value="inoculation">inoculation</option>
+                <option value="incubation">incubation</option>
+                <option value="fruiting">fruiting</option>
+                <option value="harvest">harvest</option>
+                <option value="qa">qa</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select id="issStatus" class="form-select">
+                <option value="open">open</option>
+                <option value="monitoring">monitoring</option>
+                <option value="closed">closed</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-md-3">
+              <label class="form-label">Type</label>
+              <select id="issType" class="form-select">
+                <option value="trichoderma">trichoderma</option>
+                <option value="bacteria">bacteria</option>
+                <option value="yeast">yeast</option>
+                <option value="mold_other">mold_other</option>
+                <option value="mites">mites</option>
+                <option value="process_deviation">process_deviation</option>
+                <option value="other">other</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Severity</label>
+              <select id="issSeverity" class="form-select">
+                <option value="low">low</option>
+                <option value="medium">medium</option>
+                <option value="high">high</option>
+                <option value="critical">critical</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Suspected source</label>
+              <input id="issSource" class="form-control" placeholder="e.g., grain, LC, air, operator, substrate">
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Corrective action</label>
+            <input id="issAction" class="form-control" placeholder="e.g., isolate, discard, adjust FAE, sanitize">
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Notes</label>
+            <textarea id="issNotes" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mt-2">
+  <label class="form-label" data-i18n-key="issues_attachments">Photos</label>
+  <input id="issPhotos" type="file" class="form-control" accept="image/*" multiple>
+  <div class="form-text" data-i18n-key="issues_attachments_hint">Optional. Images are stored locally in this browser (compressed).</div>
+  <div id="issPhotoPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+</div>
+          <div class="alert alert-warning mt-3 small d-none" id="issWarn"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="saveIssueBtn" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../js/issues.js"></script>
+</body>
+</html>

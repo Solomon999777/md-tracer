@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backup</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+  <div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="mb-0" data-i18n-key="backup_title">Backup &amp; Restore</h1>
+      <a class="btn btn-outline-secondary" href="users.html">← Users</a>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Export</h5>
+            <p class="text-muted small">Download everything stored locally in this browser as a JSON file.</p>
+            <button class="btn btn-primary" id="btnExport" data-i18n-key="backup_export">Export data (JSON)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Import</h5>
+            <p class="text-muted small">Restore from a previously exported JSON file.</p>
+            <input type="file" class="form-control" id="fileImport" accept="application/json" />
+            <button class="btn btn-success mt-2" id="btnImport" data-i18n-key="backup_import">Import data (JSON)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card border-danger shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-danger">Danger zone</h5>
+            <p class="text-muted small" data-i18n-key="backup_warning">This will remove locally stored data from this browser.</p>
+            <button class="btn btn-outline-danger" id="btnClear" data-i18n-key="backup_clear">Clear local data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h5>Keys included</h5>
+      <pre class="bg-light p-3 rounded small" id="keysBox"></pre>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/seed.js"></script>
+  <script type="module" src="../js/backup.js"></script>
+</body>
+</html>

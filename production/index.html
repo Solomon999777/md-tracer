@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .card-link { text-decoration: none; color: inherit; }
+    .card-link:hover { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+  <div class="container py-5">
+    <h1 class="mb-2">Production</h1>
+    <p class="lead">Track batches and log each stage of the production cycle.</p>
+
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="batches.html">
+          <div class="card-body">
+            <h6 class="card-title">Batches</h6>
+            <p class="card-text">Create batches and track status.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="preparation.html">
+          <div class="card-body">
+            <h6 class="card-title">Preparation</h6>
+            <p class="card-text">Substrate and media prep logs.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="inoculation.html">
+          <div class="card-body">
+            <h6 class="card-title">Inoculation</h6>
+            <p class="card-text">Spawn, aseptic work and inoculation logs.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="incubation.html">
+          <div class="card-body">
+            <h6 class="card-title">Incubation</h6>
+            <p class="card-text">Environmental checks and observations.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="fruiting.html">
+          <div class="card-body">
+            <h6 class="card-title">Fruiting</h6>
+            <p class="card-text">Pins, setpoints, and fruiting progress.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="harvest.html">
+          <div class="card-body">
+            <h6 class="card-title">Harvest</h6>
+            <p class="card-text">Yield, grading and flush tracking.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="cleaning.html">
+          <div class="card-body">
+            <h6 class="card-title">Cleaning</h6>
+            <p class="card-text">Sanitation logs for rooms and tools.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a class="card card-link shadow-sm" href="qa.html">
+          <div class="card-body">
+            <h6 class="card-title">QA</h6>
+            <p class="card-text">Contamination, holds and disposition.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="../index.html" class="btn btn-secondary">Back to Dashboard</a>
+    
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="workflow.html">
+        <div class="card-body">
+          <h6 class="card-title">Workflow</h6>
+          <p class="card-text small text-muted">Pipeline overview, attention items and recent activity.</p>
+        </div>
+      </a>
+    </div>
+
+
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="issues.html">
+        <div class="card-body">
+          <h6 class="card-title">Issues</h6>
+          <p class="card-text small text-muted">Track contamination and process deviations.</p>
+        </div>
+      </a>
+    </div>
+
+
+    <div class="col-md-3 col-sm-6">
+      <a class="card card-link shadow-sm" href="harvest_lots.html">
+        <div class="card-body">
+          <h6 class="card-title">Harvest Lots</h6>
+          <p class="card-text small text-muted">Create lots, labels (QR), and release status.</p>
+        </div>
+      </a>
+    </div>
+
+</div>
+  </div>
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<div class="col-md-3 col-sm-6">
+  <a class="card card-link shadow-sm" href="lineage.html">
+    <div class="card-body">
+      <h6 class="card-title" data-i18n-key="nav_lineage">Lineage</h6>
+      <p class="card-text text-muted small" data-i18n-key="lineage_card_desc">Culture & lots trace chain</p>
+    </div>
+  </a>
+</div>
+

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spores | Warehouse | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+<div class="container py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="mb-1">Spores</h1>
+      <div class="text-muted">Track spore assets (syringes, prints, swabs).</div>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sporeModal">Add Spore Item</button>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <input id="sporeSearch" class="form-control" placeholder="Search spores...">
+    </div>
+    <div class="col-md-4">
+      <select id="sporeStrainFilter" class="form-select"></select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle responsive-table">
+      <thead class="table-light">
+        <tr>
+          <th style="width:90px;">ID</th>
+          <th>Strain</th>
+          <th style="width:130px;">Format</th>
+          <th style="width:140px;">Volume</th>
+          <th>Supplier</th>
+          <th style="width:140px;">Received</th>
+          <th>Notes</th>
+          <th style="width:140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sporeTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <a href="index.html" class="btn btn-secondary">Back to Warehouse</a>
+  </div>
+
+  <div class="modal fade" id="sporeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="sporeModalTitle">Add Spore Item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="sporeId">
+          <div class="mb-3">
+            <label class="form-label">Strain</label>
+            <select id="sporeStrain" class="form-select"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Format</label>
+            <select id="sporeFormat" class="form-select">
+              <option>Syringe</option>
+              <option>Print</option>
+              <option>Swab</option>
+              <option>Culture</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Volume (ml)</label>
+            <input id="sporeVol" type="number" step="0.1" class="form-control" value="10">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Supplier</label>
+            <input id="sporeSupplier" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Received</label>
+            <input id="sporeReceived" type="date" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea id="sporeNotes" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" id="sporeSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const key = 'mdt_spores_v1';
+      const strainsKey = 'mdt_strains_v1';
+
+      const tbody = document.getElementById('sporeTbody');
+      const search = document.getElementById('sporeSearch');
+      const strainFilter = document.getElementById('sporeStrainFilter');
+      const strainSelect = document.getElementById('sporeStrain');
+
+      const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      function load(k) { return JSON.parse(localStorage.getItem(k) || '[]'); }
+      function save(v) { localStorage.setItem(key, JSON.stringify(v)); }
+      function nextId(list) { return (list.reduce((m,x)=>Math.max(m, Number(x.spore_id||0)), 0) || 0) + 1; }
+
+      function strainName(id) {
+        const s = load(strainsKey).find(x => Number(x.strain_id) === Number(id));
+        return s ? s.name : '—';
+      }
+
+      function renderStrainSelects() {
+        const strains = load(strainsKey);
+        strainSelect.innerHTML = strains.map(s => `<option value="${s.strain_id}">${escapeHtml(s.name)}</option>`).join('');
+        strainFilter.innerHTML = ['<option value="">All Strains</option>'].concat(
+          strains.map(s => `<option value="${s.strain_id}">${escapeHtml(s.name)}</option>`)
+        ).join('');
+      }
+
+      function render() {
+        const q = (search.value || '').toLowerCase();
+        const sid = strainFilter.value;
+        const list = load(key).filter(sp => {
+          if (sid && String(sp.strain_id) !== String(sid)) return false;
+          if (!q) return true;
+          return strainName(sp.strain_id).toLowerCase().includes(q)
+            || (sp.format||'').toLowerCase().includes(q)
+            || (sp.supplier||'').toLowerCase().includes(q)
+            || (sp.notes||'').toLowerCase().includes(q);
+        });
+
+        tbody.innerHTML = '';
+        list.forEach(sp => {
+          const tr = document.createElement('tr');
+          const vol = Number(sp.volume_ml || 0);
+          tr.innerHTML = `
+            <td>${sp.spore_id}</td>
+            <td>${escapeHtml(strainName(sp.strain_id))}</td>
+            <td>${escapeHtml(sp.format||'')}</td>
+            <td>${vol ? escapeHtml(vol.toFixed(1)) + ' ml' : '—'}</td>
+            <td>${escapeHtml(sp.supplier||'')}</td>
+            <td>${escapeHtml(sp.received||'')}</td>
+            <td>${escapeHtml(sp.notes||'')}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" data-act="edit" data-id="${sp.spore_id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="del" data-id="${sp.spore_id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('sporeModal'));
+      const titleEl = document.getElementById('sporeModalTitle');
+
+      function openAdd() {
+        titleEl.textContent = 'Add Spore Item';
+        document.getElementById('sporeId').value = '';
+        document.getElementById('sporeFormat').value = 'Syringe';
+        document.getElementById('sporeVol').value = 10;
+        document.getElementById('sporeSupplier').value = 'In-house';
+        document.getElementById('sporeReceived').value = new Date().toISOString().slice(0,10);
+        document.getElementById('sporeNotes').value = '';
+        modal.show();
+      }
+
+      function openEdit(sp) {
+        titleEl.textContent = 'Edit Spore Item';
+        document.getElementById('sporeId').value = sp.spore_id;
+        document.getElementById('sporeStrain').value = sp.strain_id;
+        document.getElementById('sporeFormat').value = sp.format || 'Syringe';
+        document.getElementById('sporeVol').value = Number(sp.volume_ml || 0);
+        document.getElementById('sporeSupplier').value = sp.supplier || '';
+        document.getElementById('sporeReceived').value = sp.received || '';
+        document.getElementById('sporeNotes').value = sp.notes || '';
+        modal.show();
+      }
+
+      document.querySelector('[data-bs-target="#sporeModal"]').addEventListener('click', openAdd);
+
+      document.getElementById('sporeSaveBtn').addEventListener('click', () => {
+        const list = load(key);
+        const idRaw = document.getElementById('sporeId').value;
+        const strain_id = Number(document.getElementById('sporeStrain').value);
+        const format = document.getElementById('sporeFormat').value;
+        const volume_ml = Number(document.getElementById('sporeVol').value || 0);
+        const supplier = document.getElementById('sporeSupplier').value.trim();
+        const received = document.getElementById('sporeReceived').value;
+        const notes = document.getElementById('sporeNotes').value.trim();
+
+        if (!strain_id) return;
+
+        if (idRaw) {
+          const id = Number(idRaw);
+          const idx = list.findIndex(x => Number(x.spore_id) === id);
+          if (idx >= 0) list[idx] = { ...list[idx], spore_id:id, strain_id, format, volume_ml, supplier, received, notes };
+        } else {
+          const id = nextId(list);
+          list.push({ spore_id:id, strain_id, format, volume_ml, supplier, received, notes });
+        }
+        save(list);
+        modal.hide();
+        render();
+      });
+
+      tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const act = btn.getAttribute('data-act');
+        const id = Number(btn.getAttribute('data-id'));
+        const list = load(key);
+        const item = list.find(x => Number(x.spore_id) === id);
+        if (!item) return;
+
+        if (act === 'edit') openEdit(item);
+        if (act === 'del') {
+          if (!confirm('Delete this spore item?')) return;
+          save(list.filter(x => Number(x.spore_id) !== id));
+          render();
+        }
+      });
+
+      search.addEventListener('input', render);
+      strainFilter.addEventListener('change', render);
+
+      renderStrainSelects();
+      render();
+    });
+  </script>
+
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

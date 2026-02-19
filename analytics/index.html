@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n-key="analytics-title">Analytics & Reports</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/app.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Language selector and voice command -->
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+  <div class="container py-4">
+    <h1 class="mb-4" data-i18n-key="analytics-title">Analytics & Reports</h1>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Counts</h5>
+            <canvas id="countsChart" style="height:300px;"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Organic vs Conventional</h5>
+            <canvas id="organicChart" style="height:300px;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title" data-i18n-key="env_analytics_title">Environmental Analytics</h5>
+          <p class="card-text" data-i18n-key="env_analytics_desc">Charts and alerts for incubation/fruiting parameters.</p>
+          <a class="btn btn-outline-primary" href="environment.html" data-i18n-key="open">Open</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <a href="../index.html" class="btn btn-secondary" data-i18n-key="close">Back to Dashboard</a>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Helper to load array from storage
+    function load(key) {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    }
+    const vendors = load('vendors');
+    const purchaseOrders = load('purchaseOrders');
+    const salesOrders = load('salesOrders');
+    // Compute counts
+    const countsData = [vendors.length, purchaseOrders.length, salesOrders.length];
+    const labelsCounts = ['Vendors', 'Purchase Orders', 'Sales Orders'];
+    // Organic vs Conventional
+    let organicQty = 0;
+    let conventionalQty = 0;
+    function processOrders(orders) {
+      orders.forEach(order => {
+        order.items.forEach(item => {
+          if (item.organic) organicQty += Number(item.qty);
+          else conventionalQty += Number(item.qty);
+        });
+      });
+    }
+    processOrders(purchaseOrders);
+    processOrders(salesOrders);
+    const organicData = [organicQty, conventionalQty];
+    // Translate labels for organic chart
+    const lang = localStorage.getItem('lang') || 'en';
+    const t = (window.translations && window.translations[lang]) || {};
+    const organicLabel = t['is-organic'] || 'Organic';
+    const conventionalLabel = t['is-conventional'] || 'Conventional';
+    const labelsOrganic = [organicLabel, conventionalLabel];
+    // Render counts chart
+    const ctxCounts = document.getElementById('countsChart').getContext('2d');
+    new Chart(ctxCounts, {
+      type: 'bar',
+      data: {
+        labels: labelsCounts,
+        datasets: [{
+          label: '#',
+          data: countsData,
+          backgroundColor: ['#0d6efd', '#198754', '#fd7e14'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+    // Render organic chart
+    const ctxOrganic = document.getElementById('organicChart').getContext('2d');
+    new Chart(ctxOrganic, {
+      type: 'doughnut',
+      data: {
+        labels: labelsOrganic,
+        datasets: [{
+          data: organicData,
+          backgroundColor: ['#198754', '#dc3545'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Strain performance (from harvest lots)
+    const lots = JSON.parse(localStorage.getItem('mdt_harvest_lots_v1') || '[]');
+    const batches = JSON.parse(localStorage.getItem('mdt_batches_v1') || '[]');
+    const byStrain = {};
+    for (const lot of lots) {
+      const b = batches.find(x=>x.id===lot.batch_id);
+      const strain = b?.strain_name || '(unknown)';
+      if(!byStrain[strain]) byStrain[strain] = { lots:0, wet:0 };
+      byStrain[strain].lots += 1;
+      byStrain[strain].wet += Number(lot.wet_kg||0);
+    }
+    const perfRows = Object.entries(byStrain).sort((a,b)=>b[1].wet-a[1].wet).map(([strain, v]) =>
+      `<tr><td>${strain}</td><td class="text-end">${v.lots}</td><td class="text-end">${v.wet.toFixed(2)}</td></tr>`
+    ).join('');
+    document.getElementById('strainPerfBody').innerHTML = perfRows || `<tr><td colspan="3" class="text-muted">No harvest lots yet.</td></tr>`;
+
+    // Issues summary
+    const issues = JSON.parse(localStorage.getItem('mdt_issues_v1') || '[]');
+    const sevOrder = ['critical','high','medium','low'];
+    const sevCounts = {};
+    for(const i of issues){ sevCounts[i.severity||'medium'] = (sevCounts[i.severity||'medium']||0)+1; }
+    const issueRows = sevOrder.map(s=>`<tr><td>${s}</td><td class="text-end">${sevCounts[s]||0}</td></tr>`).join('');
+    document.getElementById('issueBody').innerHTML = issueRows;
+    const open = issues.filter(i=>i.status!=='closed').length;
+    document.getElementById('issueSummary').textContent = `Open issues: ${open} / Total: ${issues.length}`;
+
+  });
+  </script>
+</body>
+</html>

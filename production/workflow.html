@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workflow | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .stage-card{border-radius:16px}
+    .kpi{font-size:1.6rem;font-weight:700}
+    .mini{font-size:.85rem;color:#666}
+  </style>
+</head>
+<body>
+  <div class="container py-2 d-flex justify-content-end">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="mb-0" data-i18n-key="workflow_title">Production Workflow</h1>
+        <div class="text-muted">See what’s active, what’s blocked, and what needs attention.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="index.html" class="btn btn-outline-secondary">Back</a>
+        <a href="batches.html" class="btn btn-primary">Batches</a>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4" id="kpis"></div>
+
+    <div class="row g-3" id="stages"></div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-lg-6">
+        <div class="card shadow-sm stage-card">
+          <div class="card-body">
+            <h5 class="card-title">Attention</h5>
+            <ul id="attention" class="mb-0"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card shadow-sm stage-card">
+          <div class="card-body">
+            <h5 class="card-title">Recent activity</h5>
+            <ul id="recent" class="mb-0"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../js/workflow.js"></script>
+</body>
+</html>

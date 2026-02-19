@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harvest Lots | MD Tracer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
+<style>
+    .label-card{border:1px dashed #bbb;border-radius:12px;padding:16px;max-width:520px}
+    @media print{
+      .no-print{display:none!important}
+      body{padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-2 d-flex justify-content-end no-print">
+    <select id="langSelector" class="form-select form-select-sm w-auto me-2">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="he">עברית</option>
+    </select>
+    <button class="btn btn-outline-primary btn-sm" onclick="startVoiceCommand()">🎤 Voice</button>
+  </div>
+
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+      <div>
+        <h1 class="mb-0" data-i18n-key="harvest_lots_title">Harvest Lots</h1>
+        <div class="text-muted">Create harvest lots, generate labels, and control release status.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="index.html" class="btn btn-outline-secondary">Back</a>
+        <button class="btn btn-success" id="newLotBtn">+ New Lot</button>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3 no-print">
+      <div class="col-md-4">
+        <select id="batchFilter" class="form-select"></select>
+      </div>
+      <div class="col-md-4">
+        <select id="releaseFilter" class="form-select">
+          <option value="">All</option>
+          <option value="released">Released</option>
+          <option value="held">Held</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <input id="search" class="form-control" placeholder="Search">
+      </div>
+    </div>
+
+    <div class="table-responsive no-print">
+      <table class="table table-hover align-middle responsive-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Lot ID</th>
+            <th>Batch</th>
+            <th>Flush</th>
+            <th class="text-end">Wet (kg)</th>
+            <th class="text-end">Dry (kg)</th>
+            <th>Grade</th>
+            <th>Release</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lotsBody"></tbody>
+      </table>
+    </div>
+
+    <div id="labelArea" class="mt-4 d-none"></div>
+  </div>
+
+  <div class="modal fade" id="lotModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Harvest Lot</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-2">
+            <div class="col-md-3">
+              <label class="form-label">Date</label>
+              <input id="lotDate" type="date" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Batch</label>
+              <div class="input-group"><select id="lotBatch" class="form-select"></select><button class="btn btn-outline-secondary scan-fill" type="button" data-target="lotBatch" title="Scan to fill">📷</button></div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Flush #</label>
+              <input id="lotFlush" type="number" min="1" step="1" class="form-control">
+            </div>
+              <div class="col-md-6">
+                <label class="form-label">Flush record</label>
+                <select class="form-select" id="lotFlushId"></select>
+                <div class="form-text">Optional: link this lot to a Flush lineage record.</div>
+              </div>
+            <div class="col-md-3">
+              <label class="form-label">Grade</label>
+              <select id="lotGrade" class="form-select">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="Discard">Discard</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-md-4">
+              <label class="form-label">Wet kg</label>
+              <input id="lotWet" type="number" step="any" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Dry kg (optional)</label>
+              <input id="lotDry" type="number" step="any" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Release</label>
+              <select id="lotReleased" class="form-select">
+                <option value="false">Hold</option>
+                <option value="true">Release</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Notes</label>
+            <input id="lotNotes" class="form-control">
+          </div>
+          <div class="alert alert-warning mt-3 small d-none" id="lotWarn"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="saveLotBtn" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/seed.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script type="module" src="../js/harvest_lots.js"></script>
+</body>
+</html>
