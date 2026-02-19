@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MD Tracer Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial; padding: 16px; max-width: 900px; margin: 0 auto; }
+    button { padding: 10px 14px; margin: 6px 6px 6px 0; cursor: pointer; }
+    pre { background:#f6f6f6; padding: 12px; overflow:auto; border-radius: 8px; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>MD Tracer Admin</h1>
+  <p>This page imports baseline categories from <code>categories.json</code> and compares against what your tracer currently has in LocalStorage.</p>
+
+  <div class="row">
+    <button id="btnImport">1) Import baseline categories</button>
+    <button id="btnCompare">2) Compare (report missing/differences)</button>
+    <button id="btnClear">Clear LocalStorage categories</button>
+  </div>
+
+  <h3>Output</h3>
+  <pre id="out">Ready.</pre>
+
+<script>
+const LS_KEY = "mdt_supply_categories_v1";
+
+function norm(s) {
+  return (s ?? "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+async function loadApiCategories() {
+  const res = await fetch("./categories.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("Could not load categories.json (did you commit it to the repo root?)");
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error("categories.json must be a JSON array");
+  return data;
+}
+
+function loadNewCategories() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function saveNewCategories(cats) {
+  localStorage.setItem(LS_KEY, JSON.stringify(cats));
+}
+
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
+}
+
+document.getElementById("btnImport").onclick = async () => {
+  const api = await loadApiCategories();
+
+  // Use API IDs as canonical IDs in the new tracer
+  const normalized = api.map(c => ({
+    id: c.id,
+    name: c.name,
+    description: c.description ?? "",
+    active: true
+  }));
+
+  saveNewCategories(normalized);
+  document.getElementById("out").textContent =
+    `Imported ${normalized.length} categories into LocalStorage key "${LS_KEY}".\n\n` +
+    `First item:\n${pretty(normalized[0])}`;
+};
+
+document.getElementById("btnCompare").onclick = async () => {
+  const api = await loadApiCategories();
+  const cur = loadNewCategories();
+
+  // Index by ID (best) and by normalized name (fallback)
+  const apiById = new Map(api.map(c => [c.id, c]));
+  const curById = new Map(cur.map(c => [c.id, c]));
+  const apiByName = new Map(api.map(c => [norm(c.name), c]));
+  const curByName = new Map(cur.map(c => [norm(c.name), c]));
+
+  const missingById = [];
+  const extraById = [];
+  const nameMatchesButIdDiff = [];
+  const fieldDiffs = [];
+
+  // Missing in new (by ID)
+  for (const [id, a] of apiById) {
+    if (!curById.has(id)) missingById.push(a);
+    else {
+      const n = curById.get(id);
+      const diffs = {};
+      if ((n.name ?? "") !== (a.name ?? "")) diffs.name = { api: a.name, new: n.name };
+      if ((n.description ?? "") !== (a.description ?? "")) diffs.description = { api: a.description, new: n.description };
+      if (Object.keys(diffs).length) fieldDiffs.push({ id, diffs });
+    }
+  }
+
+  // Extra in new (by ID)
+  for (const [id, n] of curById) {
+    if (!apiById.has(id)) extraById.push(n);
+  }
+
+  // Fallback: name exists in both but IDs don’t line up (common in migrations)
+  for (const [nName, a] of apiByName) {
+    if (curByName.has(nName)) {
+      const n = curByName.get(nName);
+      if ((n.id ?? null) !== a.id) {
+        nameMatchesButIdDiff.push({ apiId: a.id, newId: n.id, name: a.name });
+      }
+    }
+  }
+
+  const report = {
+    api_count: api.length,
+    new_count: cur.length,
+    missing_in_new_by_id: missingById,
+    extra_in_new_by_id: extraById,
+    same_name_but_id_diff: nameMatchesButIdDiff,
+    field_differences_for_same_id: fieldDiffs
+  };
+
+  document.getElementById("out").textContent = pretty(report);
+};
+
+document.getElementById("btnClear").onclick = () => {
+  localStorage.removeItem(LS_KEY);
+  document.getElementById("out").textContent = `Cleared LocalStorage key "${LS_KEY}".`;
+};
+</script>
+</body>
+</html>
