@@ -1,0 +1,42 @@
+[
+    {
+        "id": 21,
+        "name": "Biological Materials",
+        "description": "Living biological materials used directly in production, including mycelium cultures, spawn, and genetic stock requiring sterile handling and controlled storage."
+    },
+    {
+        "id": 20,
+        "name": "Filtration & Air Handling",
+        "description": "Filters and air-handling components used for air quality control in production areas."
+    },
+    {
+        "id": 12,
+        "name": "PPE & Cleanroom",
+        "description": "Personal protective equipment and sterile-area consumables."
+    },
+    {
+        "id": 18,
+        "name": "Packaging & Logistics",
+        "description": "Packaging materials used in production, harvest, storage, and shipping."
+    },
+    {
+        "id": 7,
+        "name": "Raw Materials",
+        "description": "Base materials used for substrate, grain, agar, and liquid culture preparation."
+    },
+    {
+        "id": 11,
+        "name": "Sanitation & Chemicals",
+        "description": "Chemicals and agents used for cleaning and sanitizing equipment and facilities."
+    },
+    {
+        "id": 19,
+        "name": "Sterilization Supplies",
+        "description": "Consumables used during sterilization cycles and validation steps."
+    },
+    {
+        "id": 9,
+        "name": "Tools & Equipment",
+        "description": "Reusable tools, measuring devices, and small equipment items."
+    }
+]
