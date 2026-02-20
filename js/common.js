@@ -17,6 +17,7 @@
   }
   inject('store_v2.js');
   inject('migrate_to_v2.js');
+  inject('seed_v2.js');
 })();
 
 // Translation dictionary
@@ -391,5 +392,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // give injected scripts a moment to load
     setTimeout(() => { tryMigrate(); }, 50);
     setTimeout(() => { tryMigrate(); }, 250);
+  }
+
+  // run seeding once dependencies loaded
+  const trySeed = () => {
+    if (window.MDT_SeedV2 && typeof window.MDT_SeedV2.seed === 'function') {
+      window.MDT_SeedV2.seed();
+      return true;
+    }
+    return false;
+  };
+  if (!trySeed()) {
+    setTimeout(() => { trySeed(); }, 75);
+    setTimeout(() => { trySeed(); }, 300);
   }
 });
