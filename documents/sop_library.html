@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SOP Library</title>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <script src="../js/common.js" defer></script>
+  <script src="../js/sops_v2.js" defer></script>
+</head>
+<body>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0">SOP Library</h2>
+      <a class="btn btn-outline-primary" href="../documents/index.html">Documents</a>
+    </div>
+
+    <div id="root"></div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const root = document.getElementById("root");
+      if (window.SOP_V2) SOP_V2.renderLibrary(root);
+    });
+  </script>
+</body>
+</html>
