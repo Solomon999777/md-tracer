@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Operations Dashboard</title>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <script src="../js/common.js" defer></script>
+  <script src="../js/dashboard_v2.js" defer></script>
+</head>
+<body>
+  <div class="container py-4">
+    <div id="root"></div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const root = document.getElementById("root");
+      if (window.DashboardV2) DashboardV2.renderDashboard(root);
+    });
+  </script>
+</body>
+</html>
