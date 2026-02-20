@@ -1,0 +1,186 @@
+[
+  {
+    "id": "SOP-PROC-001",
+    "title": "Vendor Qualification",
+    "version": "1.0",
+    "ownerRole": "Procurement Manager",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Ensure vendors meet quality and compliance requirements.",
+    "scope": "All new vendors and annual re-qualification.",
+    "materials": ["Vendor questionnaire", "COA examples", "Site audit checklist"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Collect vendor legal name, address, and contacts", "required": true },
+      { "id": "2", "type": "check", "text": "Obtain COA template for critical materials", "required": true },
+      { "id": "3", "type": "select", "text": "Qualification outcome", "field": "outcome", "options": ["Approved","Conditional","Rejected"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "outcome",
+      "triggerValue": "Conditional",
+      "createIssueTemplate": { "severity": "Minor", "title": "Vendor conditional approval", "requiredFields": ["summary"] }
+    }
+  },
+  {
+    "id": "SOP-WH-001",
+    "title": "Receiving Inspection & Putaway",
+    "version": "1.0",
+    "ownerRole": "Warehouse Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Verify inbound materials meet requirements and are stored correctly.",
+    "scope": "All inbound deliveries.",
+    "materials": ["Thermometer", "Camera (optional)", "Receiving checklist"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Match delivery to PO and verify quantities", "required": true },
+      { "id": "2", "type": "check", "text": "Inspect packaging integrity and labels", "required": true },
+      { "id": "3", "type": "select", "text": "Disposition", "field": "disposition", "options": ["Accept","Hold","Reject"], "required": true },
+      { "id": "4", "type": "text", "text": "Notes (optional)", "field": "notes", "required": false }
+    ],
+    "deviations": {
+      "triggerField": "disposition",
+      "triggerValue": "Hold",
+      "createIssueTemplate": { "severity": "Major", "title": "Inbound material on hold", "requiredFields": ["summary","immediateAction"] }
+    }
+  },
+  {
+    "id": "SOP-WH-002",
+    "title": "Inventory Cycle Count",
+    "version": "1.0",
+    "ownerRole": "Warehouse Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Maintain accurate inventory records via routine cycle counts.",
+    "scope": "All inventory locations and lots.",
+    "materials": ["Scanner (optional)", "Count sheet"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Select count scope (zone/sku/random lots)", "required": true },
+      { "id": "2", "type": "check", "text": "Count physical quantities and compare to system", "required": true },
+      { "id": "3", "type": "select", "text": "Variance found?", "field": "variance", "options": ["No","Yes"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "variance",
+      "triggerValue": "Yes",
+      "createIssueTemplate": { "severity": "Minor", "title": "Inventory variance", "requiredFields": ["summary"] }
+    }
+  },
+  {
+    "id": "SOP-PROD-CLN-001",
+    "title": "Production Area Cleaning & Line Clearance",
+    "version": "1.0",
+    "ownerRole": "Production Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Prevent contamination and cross-contact by ensuring area readiness.",
+    "scope": "Before and after each production run.",
+    "materials": ["Approved sanitizer", "Disposable wipes", "PPE"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Remove unrelated materials from area", "required": true },
+      { "id": "2", "type": "check", "text": "Clean and sanitize contact surfaces", "required": true },
+      { "id": "3", "type": "check", "text": "Verify tools are clean and staged", "required": true }
+    ]
+  },
+  {
+    "id": "SOP-PROD-001",
+    "title": "In-Process Production Checklist",
+    "version": "1.0",
+    "ownerRole": "Production Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Standardize key in-process controls and documentation.",
+    "scope": "Each batch run.",
+    "materials": ["Batch record", "Labels"],
+    "prerequisites": ["SOP-PROD-CLN-001 complete"],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Verify batch ID and labels prepared", "required": true },
+      { "id": "2", "type": "number", "text": "Record room temperature (\u00b0C)", "field": "roomTempC", "min": 0, "max": 40, "required": true },
+      { "id": "3", "type": "select", "text": "Any deviation?", "field": "deviation", "options": ["No","Yes"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "deviation",
+      "triggerValue": "Yes",
+      "createIssueTemplate": { "severity": "Major", "title": "Production deviation", "requiredFields": ["summary","immediateAction"] }
+    }
+  },
+  {
+    "id": "SOP-HRV-001",
+    "title": "Harvest Lot Creation & Labeling",
+    "version": "1.0",
+    "ownerRole": "Production Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Ensure each harvested lot is uniquely identified and traceable.",
+    "scope": "All harvest events.",
+    "materials": ["Labels", "Scale (if applicable)"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Assign harvest lot ID linked to batch", "required": true },
+      { "id": "2", "type": "number", "text": "Record harvested quantity", "field": "qty", "min": 0, "required": true },
+      { "id": "3", "type": "select", "text": "Place lot on QA hold?", "field": "qaHold", "options": ["No","Yes"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "qaHold",
+      "triggerValue": "Yes",
+      "createIssueTemplate": { "severity": "Major", "title": "Harvest lot placed on QA hold", "requiredFields": ["summary"] }
+    }
+  },
+  {
+    "id": "SOP-QA-001",
+    "title": "QA Hold / Release Decision",
+    "version": "1.0",
+    "ownerRole": "QA Manager",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Standardize disposition decisions and documentation.",
+    "scope": "Any lot on hold.",
+    "materials": ["QA checklist", "Test results (if applicable)"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Review lot record completeness and labels", "required": true },
+      { "id": "2", "type": "select", "text": "Disposition", "field": "disposition", "options": ["Release","Reject","Rework"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "disposition",
+      "triggerValue": "Reject",
+      "createIssueTemplate": { "severity": "Critical", "title": "Lot rejected by QA", "requiredFields": ["summary","immediateAction"] }
+    }
+  },
+  {
+    "id": "SOP-SHIP-001",
+    "title": "Order Picking & Shipping Verification",
+    "version": "1.0",
+    "ownerRole": "Warehouse Lead",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Ensure correct items/quantities are shipped with traceable documentation.",
+    "scope": "All outbound shipments.",
+    "materials": ["Pick list", "Shipping labels"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Verify SO matches items picked (FEFO if applicable)", "required": true },
+      { "id": "2", "type": "check", "text": "Verify quantities and packaging integrity", "required": true },
+      { "id": "3", "type": "select", "text": "Shipment complete?", "field": "complete", "options": ["Yes","No"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "complete",
+      "triggerValue": "No",
+      "createIssueTemplate": { "severity": "Major", "title": "Shipping discrepancy", "requiredFields": ["summary"] }
+    }
+  },
+  {
+    "id": "SOP-RECALL-001",
+    "title": "Traceback & Recall Workflow",
+    "version": "1.0",
+    "ownerRole": "QA Manager",
+    "effectiveDate": "2026-02-20",
+    "purpose": "Standardize recall decisioning and traceback documentation.",
+    "scope": "Potential recall events.",
+    "materials": ["Customer list", "Sales orders", "Trace report"],
+    "prerequisites": [],
+    "steps": [
+      { "id": "1", "type": "check", "text": "Identify affected lot/batch IDs", "required": true },
+      { "id": "2", "type": "check", "text": "Generate list of impacted sales orders/customers", "required": true },
+      { "id": "3", "type": "select", "text": "Recall initiated?", "field": "recall", "options": ["No","Yes"], "required": true }
+    ],
+    "deviations": {
+      "triggerField": "recall",
+      "triggerValue": "Yes",
+      "createIssueTemplate": { "severity": "Critical", "title": "Recall initiated", "requiredFields": ["summary","immediateAction"] }
+    }
+  }
+]
