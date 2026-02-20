@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Traceback</title>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <script src="../js/common.js" defer></script>
+  <script src="../js/traceback_v2.js" defer></script>
+</head>
+<body>
+  <div class="container py-4">
+    <div id="root"></div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const root = document.getElementById("root");
+      if (window.TracebackV2) TracebackV2.renderTraceback(root);
+    });
+  </script>
+</body>
+</html>
